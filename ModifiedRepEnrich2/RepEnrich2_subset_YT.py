@@ -22,7 +22,7 @@ parser.add_argument('--pairedend', action= 'store', dest='pairedend', default= '
 # conversion bed AluY is at /users/yteo/data/yteo/Repeats/Alu/hs37d5AluY_consensus_cigar1bp_sorted.bed
 # repeat bed AluY is at /users/yteo/data/yteo/Repeats/Alu/AluY_dimeric_noAluYlinearge_chronly.bed
 # bed files chromosome names are without the suffix "chr"
-parser.add_argument('--counting', action= 'store', dest='counting', default= '/users/yteo/data/yteo/Software/RepEnrich2/YT/Count.sh', help='Path to Count.sh file')
+parser.add_argument('--counting', action= 'store', dest='counting', default= 'Count.sh', help='Path to Count.sh file')
 # counting folder
 
 # extend reads to cover the whole fragment and count the coverage (Extend = true), or false (only count coverage at mapped reads)
@@ -187,11 +187,11 @@ if pairedend == "TRUE":
 Repeattypes = ["L1HS","ALUY"]
 for repeattype in Repeattypes:
 	if repeattype == "L1HS": 
-		repeatbed="/users/yteo/data/yteo/Repeats/L1HS.bed"
-		conversionbed="/users/yteo/data/yteo/Repeats/hs37d5L1HS_consensus_cigar1bp_sorted.bed"
+		repeatbed="./TE_Data/L1HS.bed"
+		conversionbed="./TE_Data/hs37d5L1HS_consensus_cigar1bp_sorted.bed"
 	elif repeattype =="ALUY":
-		repeatbed="/users/yteo/data/yteo/Repeats/Alu/AluY_dimeric_noAluYlinearge_chronly.bed"
-		conversionbed="/users/yteo/data/yteo/Repeats/Alu/hs37d5AluY_consensus_cigar1bp_sorted.bed"
+		repeatbed="./TE_Data/Alu/AluY_dimeric_noAluYlinearge_chronly.bed"
+		conversionbed="./TE_Data/hs37d5AluY_consensus_cigar1bp_sorted.bed"
 
 	fileout= sample_name + '_unique.bam'
 	fileout_rep= sample_name + '_unique_'+repeattype+'.bam'

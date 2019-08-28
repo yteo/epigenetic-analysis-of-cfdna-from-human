@@ -22,14 +22,14 @@ parser.add_argument('--fastqfile2', action= 'store', dest='fastqfile2', metavar=
 parser.add_argument('--cpus', action= 'store', dest='cpus', metavar='cpus', default= "1", type=int, help='Enter available cpus per node.  The more cpus the faster RepEnrich performs. RepEnrich is designed to only work on one node. Default: "1"')
 parser.add_argument('--allcountmethod', action= 'store', dest='allcountmethod', metavar='allcountmethod', default= "FALSE", help='By default the pipeline only outputs the fraction count method.  Consdidered to be the best way to count multimapped reads.  Changing this option will include the unique count method, a conservative count, and the total count method, a liberal counting strategy. Our evaluation of simulated data indicated fraction counting is best. Default = FALSE, change to TRUE')
 parser.add_argument('--is_bed', action= 'store', dest='is_bed', metavar='is_bed', default= 'FALSE', help='Is the annotation file a bed file.  This is also a compatible format.  The file needs to be a tab seperated bed with optional fields.  Ex. format chr\tstart\tend\tName_element\tclass\tfamily.  The class and family should identical to name_element if not applicable.  Default FALSE change to TRUE')
-parser.add_argument('--multi', action= 'store', dest='multi', default= '/users/yteo/data/yteo/Software/RepEnrich2/YT/Multimapped.sh', help='Path to Multimapped.sh file')
+parser.add_argument('--multi', action= 'store', dest='multi', default= 'Multimapped.sh', help='Path to Multimapped.sh file')
 
 args = parser.parse_args()
-L1HS_consensus_bt="/gpfs/data/nneretti/yteo/Blood_Microbiome/Reads/Clean/annotation_retrofind/L1HS_Alu/L1HS"
-ALUY_consensus_bt="/gpfs/data/nneretti/yteo/Blood_Microbiome/Reads/Clean/annotation_retrofind/L1HS_Alu/ALUY"
+L1HS_consensus_bt="./TE_Data/L1HS"
+ALUY_consensus_bt="./TE_Data/ALUY"
 
-L1HS_1stepbed="/users/yteo/data/yteo/Software/RepEnrich2/YT/L1HS_1bpstep.bed"
-ALUY_1stepbed="/users/yteo/data/yteo/Software/RepEnrich2/YT/AluY_1bpstep.bed"
+L1HS_1stepbed="./TE_Data/L1HS_1bpstep.bed"
+ALUY_1stepbed="./TE_Data/AluY_1bpstep.bed"
 # parameters
 annotation_file = args.annotation_file
 outputfolder = args.outputfolder
@@ -175,15 +175,15 @@ if paired_end == 'TRUE':
 	ps = []
 	psb= []
 	ticker= 0
-	for metagenome in repeat_list:
-		metagenomepath = setup_folder + os.path.sep + metagenome
-		file1=folder_pair1 + os.path.sep + metagenome + '.txt'
-		file2 =folder_pair2 + os.path.sep + metagenome + '.txt'
+	for repeatgenome in repeat_list:
+		repeatgenomepath = setup_folder + os.path.sep + repeatgenome
+		file1=folder_pair1 + os.path.sep + repeatgenome + '.txt'
+		file2 =folder_pair2 + os.path.sep + repeatgenome + '.txt'
 		with open(file1, 'w') as stdout:
-			p = subprocess.Popen('bowtie2 ' + b_opt + ' ' + '-x ' + metagenomepath + ' ' + fastqfile_1 + ' | grep \"repname\" -', shell=True, stdout=stdout)
+			p = subprocess.Popen('bowtie2 ' + b_opt + ' ' + '-x ' + repeatgenomepath + ' ' + fastqfile_1 + ' | grep \"repname\" -', shell=True, stdout=stdout)
 			
 		with open(file2, 'w') as stdout:
-			pp = subprocess.Popen('bowtie2 ' + b_opt + ' ' + '-x ' + metagenomepath + ' ' + fastqfile_2 + ' | grep \"repname\" -', shell=True, stdout=stdout)
+			pp = subprocess.Popen('bowtie2 ' + b_opt + ' ' + '-x ' + repeatgenomepath + ' ' + fastqfile_2 + ' | grep \"repname\" -', shell=True, stdout=stdout)
 		
 
 
@@ -213,10 +213,10 @@ if paired_end == 'TRUE':
 	if not os.path.exists(outputfolder + os.path.sep + 'sorted_'):
 		os.mkdir(outputfolder + os.path.sep + 'sorted_')
 	sorted_ = outputfolder + os.path.sep + 'sorted_'
-	for metagenome in repeat_list:
-		file1 = folder_pair1 + os.path.sep + metagenome + '.txt'
-		file2 = folder_pair2 + os.path.sep + metagenome + '.txt'
-		fileout= sorted_ + os.path.sep + metagenome + '.txt'
+	for repeatgenome in repeat_list:
+		file1 = folder_pair1 + os.path.sep + repeatgenome + '.txt'
+		file2 = folder_pair2 + os.path.sep + repeatgenome + '.txt'
+		fileout= sorted_ + os.path.sep + repeatgenome + '.txt'
 		with open(fileout, 'w') as stdout:
 			p1 = subprocess.Popen(['cat',file1,file2], stdout = subprocess.PIPE)
 			p2 = subprocess.Popen(['cut', '-f1',"-d "], stdin = p1.stdout, stdout = subprocess.PIPE)
@@ -251,27 +251,27 @@ if paired_end == 'TRUE':
 	file_l1hs2=outputfolder + os.path.sep + outputfile_prefix + '_L1HS2.bam'
 	file_aluy1=outputfolder + os.path.sep + outputfile_prefix + '_ALUY1.bam'
 	file_aluy2=outputfolder + os.path.sep + outputfile_prefix + '_ALUY2.bam'
-	for metagenome in repeat_list:
-		metagenomepath = setup_folder + os.path.sep + metagenome
-		if metagenome =="L1HS":
+	for repeatgenome in repeat_list:
+		repeatgenomepath = setup_folder + os.path.sep + repeatgenome
+		if repeatgenome =="L1HS":
 			with open(file_l1hs1, 'w') as stdout:
-				command = shlex.split("bowtie2 " + b_opt + " " + "-x " + metagenomepath + " " + fastqfile_1)
+				command = shlex.split("bowtie2 " + b_opt + " " + "-x " + repeatgenomepath + " " + fastqfile_1)
 				p = subprocess.Popen(command, stdout=stdout)
 				p.communicate()
 			stdout.close()
 			with open(file_l1hs2, 'w') as stdout:
-				command = shlex.split("bowtie2 " + b_opt + " " + "-x " + metagenomepath + " " + fastqfile_2)
+				command = shlex.split("bowtie2 " + b_opt + " " + "-x " + repeatgenomepath + " " + fastqfile_2)
 				pp = subprocess.Popen(command, stdout=stdout)
 				pp.communicate()
 			stdout.close()
-		if metagenome =="AluY":
+		if repeatgenome =="AluY":
 			with open(file_aluy1, 'w') as stdout:
-				command = shlex.split("bowtie2 " + b_opt + " " + "-x " + metagenomepath + " " + fastqfile_1)
+				command = shlex.split("bowtie2 " + b_opt + " " + "-x " + repeatgenomepath + " " + fastqfile_1)
 				p = subprocess.Popen(command, stdout=stdout)
 				p.communicate()
 			stdout.close()
 			with open(file_aluy2, 'w') as stdout:
-				command = shlex.split("bowtie2 " + b_opt + " " + "-x " + metagenomepath + " " + fastqfile_2)
+				command = shlex.split("bowtie2 " + b_opt + " " + "-x " + repeatgenomepath + " " + fastqfile_2)
 				pp = subprocess.Popen(command, stdout=stdout)
 				pp.communicate()
 			stdout.close()
@@ -513,11 +513,11 @@ if paired_end == 'FALSE':
 	ps = []
 	ticker= 0
 	print "Processing repeat psuedogenomes..."
-	for metagenome in repeat_list:
-		metagenomepath = setup_folder + os.path.sep + metagenome
-		file1=folder_pair1 + os.path.sep + metagenome + '.txt'
+	for repeatgenome in repeat_list:
+		repeatgenomepath = setup_folder + os.path.sep + repeatgenome
+		file1=folder_pair1 + os.path.sep + repeatgenome + '.txt'
 		with open(file1, 'w') as stdout:
-			p = subprocess.Popen('bowtie2 ' + b_opt + ' ' + '-x ' + metagenomepath + ' ' + fastqfile_1 + ' | grep \"repname\" -', shell=True, stdout=stdout)
+			p = subprocess.Popen('bowtie2 ' + b_opt + ' ' + '-x ' + repeatgenomepath + ' ' + fastqfile_1 + ' | grep \"repname\" -', shell=True, stdout=stdout)
 		ps.append(p)
 		ticker +=1
 		if ticker == cpus:
@@ -536,9 +536,9 @@ if paired_end == 'FALSE':
 	if not os.path.exists(outputfolder + os.path.sep + 'sorted_'):
 		os.mkdir(outputfolder + os.path.sep + 'sorted_')
 	sorted_ = outputfolder + os.path.sep + 'sorted_'
-	for metagenome in repeat_list:
-		file1 = folder_pair1 + os.path.sep + metagenome + '.txt'
-		fileout= sorted_ + os.path.sep + metagenome + '.txt'
+	for repeatgenome in repeat_list:
+		file1 = folder_pair1 + os.path.sep + repeatgenome + '.txt'
+		fileout= sorted_ + os.path.sep + repeatgenome + '.txt'
 		with open(fileout, 'w') as stdout:
 			p1 = subprocess.Popen(['cat',file1], stdout = subprocess.PIPE)
 			p2 = subprocess.Popen(['cut', '-f1'], stdin = p1.stdout, stdout = subprocess.PIPE)
@@ -559,8 +559,8 @@ if paired_end == 'FALSE':
 	# fileout2= outputfolder+ os.path.sep + 'allreadsid_repeat.txt'
 	# print 'Counting how many repeats a read has mapped to...'
 	# with open(fileout2, 'w') as stdout:
-	# 	for metagenome in repeat_list:
-	# 		file1 = folder_pair1 + os.path.sep + metagenome + '.txt'
+	# 	for repeatgenome in repeat_list:
+	# 		file1 = folder_pair1 + os.path.sep + repeatgenome + '.txt'
 	# 		p1 = subprocess.Popen(['cat',file1], stdout = subprocess.PIPE)
 	# 		p2 = subprocess.Popen(['cut', '-f1',"-d "], stdin = p1.stdout, stdout = subprocess.PIPE)
 	# 		p3 = subprocess.Popen(['cut', '-f1', "-d/"], stdin = p2.stdout, stdout = subprocess.PIPE)
@@ -608,18 +608,18 @@ if paired_end == 'FALSE':
 
 	file_aluy1=outputfolder + os.path.sep + outputfile_prefix + '_ALUY1.bam'
 
-	for metagenome in repeat_list:
-		metagenomepath = setup_folder + os.path.sep + metagenome
-		if metagenome =="L1HS":
+	for repeatgenome in repeat_list:
+		repeatgenomepath = setup_folder + os.path.sep + repeatgenome
+		if repeatgenome =="L1HS":
 			with open(file_l1hs1, 'w') as stdout:
-				command = shlex.split("bowtie2 " + b_opt + " " + "-x " + metagenomepath + " " + fastqfile_1)
+				command = shlex.split("bowtie2 " + b_opt + " " + "-x " + repeatgenomepath + " " + fastqfile_1)
 				p = subprocess.Popen(command, stdout=stdout)
 				p.communicate()
 			stdout.close()
 
-		if metagenome =="AluY":
+		if repeatgenome =="AluY":
 			with open(file_aluy1, 'w') as stdout:
-				command = shlex.split("bowtie2 " + b_opt + " " + "-x " + metagenomepath + " " + fastqfile_1)
+				command = shlex.split("bowtie2 " + b_opt + " " + "-x " + repeatgenomepath + " " + fastqfile_1)
 				p = subprocess.Popen(command, stdout=stdout)
 				p.communicate()
 			stdout.close()
